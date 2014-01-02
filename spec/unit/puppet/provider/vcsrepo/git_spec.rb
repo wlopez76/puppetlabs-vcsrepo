@@ -15,6 +15,19 @@ describe_provider :vcsrepo, :git, :resource => {:path => '/tmp/vcsrepo'} do
             provider.create
           end
         end
+        context "with shallow clone enable" do
+          it "should execute 'git clone --depth 1'" do
+            resource[:revision] = 'only/remote'
+            resource[:depth] = 1
+            Dir.expects(:chdir).with('/').at_least_once.yields
+            Dir.expects(:chdir).with('/tmp/test').at_least_once.yields
+            provider.expects(:git).with('clone', '--depth', '1', resource.value(:source), resource.value(:path))
+            provider.expects(:update_submodules)
+            provider.expects(:git).with('branch', '-a').returns(resource.value(:revision))
+            provider.expects(:git).with('checkout', '--force', resource.value(:revision))
+            provider.create
+          end
+        end
         context "with a revision that is not a remote branch", :resource => {:revision => 'a-commit-or-tag'} do
           it "should execute 'git clone' and 'git reset --hard'" do
             provider.expects('git').with('clone', resource.value(:source), resource.value(:path))

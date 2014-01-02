@@ -28,6 +28,9 @@ Puppet::Type.newtype(:vcsrepo) do
   feature :multiple_remotes,
           "The repository tracks multiple remote repositories"
 
+  feature :depth,
+          "The provider can do shallow clones"
+
   ensurable do
     attr_accessor :latest
 
@@ -168,4 +171,7 @@ Puppet::Type.newtype(:vcsrepo) do
     defaultto "origin"
   end
 
+  newparam :depth, :required_features => [:depth] do
+    desc "The value to be used to do a shallow clone."
+  end
 end
